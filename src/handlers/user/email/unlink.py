@@ -18,27 +18,9 @@ user_response = {
     "count": 1023,
     "next": "https://api.example.org/persons/?page=2&per_page=10",
     "previous": None,
-    "results": [
-        {"email": "example@gmail.com", "provider": "gmail", "cback_data": "gmail", "user": 537949371},
-        {"email": "example2@mail.ru", "provider": "mail", "cback_data": "mail", "user": 537949371},
-        {"email": "example3@yandex.com", "provider": "yandex", "cback_data": "yandex", "user": 537949371},
-        {"email": "example@gmail.com", "provider": "gmail", "cback_data": "gmail", "user": 537949371},
-        {"email": "example2@mail.ru", "provider": "mail", "cback_data": "mail", "user": 537949371},
-        {"email": "example3@yandex.com", "provider": "yandex", "cback_data": "yandex", "user": 537949371},
-        {"email": "example@gmail.com", "provider": "gmail", "cback_data": "gmail", "user": 537949371},
-        {"email": "example2@mail.ru", "provider": "mail", "cback_data": "mail", "user": 537949371},
-        {"email": "example3@yandex.com", "provider": "yandex", "cback_data": "yandex", "user": 537949371},
-        {"email": "example@gmail.com", "provider": "gmail", "cback_data": "gmail", "user": 537949371},
-        {"email": "example2@mail.ru", "provider": "mail", "cback_data": "mail", "user": 537949371},
-        {"email": "example3@yandex.com", "provider": "yandex", "cback_data": "yandex", "user": 537949371},
-        {"email": "example@gmail.com", "provider": "gmail", "cback_data": "gmail", "user": 537949371},
-        {"email": "example2@mail.ru", "provider": "mail", "cback_data": "mail", "user": 537949371},
-        {"email": "example3@yandex.com", "provider": "yandex", "cback_data": "yandex", "user": 537949371},
-        {"email": "example@gmail.com", "provider": "gmail", "cback_data": "gmail", "user": 537949371},
-        {"email": "example2@mail.ru", "provider": "mail", "cback_data": "mail", "user": 537949371},
-        {"email": "example3@yandex.com", "provider": "yandex", "cback_data": "yandex", "user": 537949371},
-    ]
+    "results": []
 }
+
 
 @disconnect.message(
     Command("disconnect"),
