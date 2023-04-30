@@ -20,4 +20,5 @@ def get_current_state(func: typing.Callable):
             print(data)
             print(f"New current state: {current_state}, {func.__name__}")
         return res
+
     return wrapper

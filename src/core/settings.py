@@ -1,4 +1,5 @@
 from functools import lru_cache
+
 from pydantic import BaseSettings, Field, ValidationError
 
 # base_dir = Path(__file__).resolve().parent.parent.parent
@@ -12,7 +13,7 @@ class BotSettings(BaseSettings):
     admin_id: int
 
     class Config:
-        env_file_encoding = 'utf-8'
+        env_file_encoding = "utf-8"
         env_file = ".env", ".env.dev", ".env.prod"
 
 
@@ -20,12 +21,10 @@ class Settings(BaseSettings):
     bot: BotSettings
 
 
-@lru_cache()
-def get_settings() -> Settings:
+@lru_cache
+def get_settings() -> Settings:  # type: ignore
     try:
-        return Settings(
-            bot=BotSettings()
-        )
+        return Settings(bot=BotSettings())
     except ValidationError:
         print("No .env was found")
 

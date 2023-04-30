@@ -3,12 +3,13 @@ from abc import ABC, abstractmethod
 
 class BasePasswordValidation(ABC):
     # TODO: поменять название класса
-    """ Абстрактный класс для валидации пароля. """
+    """Абстрактный класс для валидации пароля."""
+
     @staticmethod
     @abstractmethod
     def check_passwords(password1: str, password2: str) -> bool:
-        """
-        Абстрактный метод для проверки паролей на совпадение.
+        """Абстрактный метод для проверки паролей на совпадение.
+
         :param password1: Пароль 1.
         :param password2: Пароль 2.
         :return: True - если пароли совпадают, False - если не совпадают.
@@ -17,11 +18,12 @@ class BasePasswordValidation(ABC):
 
 class PasswordValidation(BasePasswordValidation):
     # TODO: поменять название класса
-    """ Класс для валидации пароля. """
+    """Класс для валидации пароля."""
+
     @staticmethod
     def check_passwords(password1: str, password2: str) -> bool:
-        """
-        Проверка паролей на совпадение.
+        """Проверка паролей на совпадение.
+
         :param password1: Пароль 1.
         :param password2: Пароль 2.
         :return: True - если пароли совпадают, False - если не совпадают.

@@ -1,1 +1,1 @@
-from .settings import *
+from .settings import settings  # noqa: F401

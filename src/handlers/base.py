@@ -1,14 +1,10 @@
-from aiogram import Bot, Router, types, Dispatcher
+from aiogram import Bot, Router, types
+from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
-from aiogram.filters import Command
-from aiogram.filters import Text
-from aiogram.methods.send_chat_action import SendChatAction
-# from aiogram.utils.keyboard import InlineKeyboardButton
 
+from src.callbacks import BasicActions as ba
 from src.commands import setup_commands
 from src.core import settings
-from src.callbacks import Callbacks as cb
-# from src.filters.user import HasConnectedE
 from src.keyboards import menu_keyboard
 
 __all__ = ("router",)
@@ -28,10 +24,7 @@ async def shutdown(bot: Bot):
 
 
 @router.message(Command("cancel"))
-async def cancel(
-        message: types.Message,
-        state: FSMContext
-):
+async def process_cancel_command(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
         return
@@ -39,11 +32,8 @@ async def cancel(
     await message.answer("Действие прервано! Для привязки данных жми /connect")
 
 
-@router.callback_query(Text(cb.cancel.value))
-async def cancel(
-        cback: types.CallbackQuery,
-        state: FSMContext
-):
+@router.callback_query(Text(ba.cancel.value))  # type: ignore
+async def process_cancel_button(cback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
         return
@@ -53,29 +43,18 @@ async def cancel(
 
 @router.message(
     Command("start"),
-    # HasConnectedE(user_response)
 )
-async def start(message: types.Message, state: FSMContext,
-                # response_body
-                ) -> None:
+async def start(message: types.Message, state: FSMContext) -> None:
     # TODO: проверить есть ли пользователь в базе данных,
     #  отдавать сообщение по наличию данных в базе
     current_state = await state.get_state()
     if current_state is not None:
         return
-    # if response_body["count"] > 0:
-    #     menu_keyboard.add(InlineKeyboardButton(text="Отвязать почтовые данные", callback_data=cb.back.value))
-    #     menu_keyboard.adjust(2, 2)
-    #     await message.answer(
-    #         "Привет! 🤖 Я бот, который поможет с отслеживанием писем с электронной почты\n"
-    #         "Для начала работы нажмите на /connect",
-    #         reply_markup=menu_keyboard.as_markup()
-    #     )
-    #     return
     await message.answer(
         "Привет! 🤖 Я бот, который поможет с отслеживанием писем с электронной почты\n"
         "Для начала работы нажмите на /connect",
-        reply_markup=menu_keyboard.as_markup()
+        reply_markup=menu_keyboard.as_markup(),
     )
+
 
 # TODO: если пользователь очищает чат то стейт обнуляется

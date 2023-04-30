@@ -1,14 +1,11 @@
-from aiogram import types, Router
+from aiogram import Router, types
 from aiogram.filters import Text
 from aiogram.fsm.context import FSMContext
 
-from src.callbacks import Callbacks as cb
+from src.callbacks import BasicActions as ba
+from src.callbacks import ConnectionType as ct
+from src.keyboards import confirm_reset_keyboard, continue_repeat_keyboard
 from src.states import ConnectionEForm as Form
-from src.utils import get_current_state as state
-from src.keyboards import (
-    continue_repeat_keyboard,
-    confirm_reset_keyboard
-)
 from src.validators.email import EmailValidation
 from src.validators.password import PasswordValidation
 
@@ -17,19 +14,20 @@ __all__ = ("password",)
 password = Router()  # роутер для обработки входа через пароль
 
 
-@password.callback_query(Text(cb.password.value), Form.connection_type)
+@password.callback_query(Text(ct.password.value), Form.connection_type)
 async def process_connection_via_password(cback: types.CallbackQuery, state: FSMContext):
     await state.update_data(connection_type=cback.data)
     await cback.message.edit_text(
         "Вы выбрали авторизацию через пароль для внешних приложений, "
         "далее вам необходимо прислать мне почту, которую вы хотите привязать\n\n"
         "Если вы хотите отменить действие на любом этапе привязки, "
-        "нажмите /cancel и это вернет вас в главное меню")
-    await state.set_state(Form.email)
+        "нажмите /cancel и это вернет вас в главное меню"
+    )
+    await state.set_state(Form.post)
 
 
 # TODO: добавить валидацию почты
-@password.message(Form.email)
+@password.message(Form.post)
 async def process_entered_email(message: types.Message, state: FSMContext):
     email = message.text
     data = await state.get_data()
@@ -39,19 +37,19 @@ async def process_entered_email(message: types.Message, state: FSMContext):
             "Отлично! Теперь проверьте правильность введенной вами почты и нажмите <b>Продолжить</b>, "
             "если все верно\n\n"
             f"Почта {message.text}",
-            reply_markup=continue_repeat_keyboard.as_markup()
+            reply_markup=continue_repeat_keyboard.as_markup(),
         )
-        await state.set_state(Form.check_email)
+        await state.set_state(Form.check_post)
         await message.delete()
     if not EmailValidation.check_format(email):
-        await state.set_state(Form.email)
+        await state.set_state(Form.post)
         await message.answer(
             f"Почта {message.text} "
             f"не соответствует формату электронного адреса, "
             f"попробуйте ввести данные еще раз"
         )
     if not EmailValidation.check_domain(email, data["provider"]):
-        await state.set_state(Form.email)
+        await state.set_state(Form.post)
         await message.answer(
             f"Почта {message.text} не содержит домена {data['provider']}, возможно вы ошиблись\n\n"
             f"Попробуйте ввести почту еще раз, "
@@ -60,10 +58,9 @@ async def process_entered_email(message: types.Message, state: FSMContext):
         )
 
 
-@password.callback_query(Text(cb.next.value), Form.check_email)
+@password.callback_query(Text(ba.next.value), Form.check_post)
 async def process_entered_password(cback: types.CallbackQuery, state: FSMContext):
-    await cback.message.edit_text(
-        "Отлично! Теперь пришлите пароль для внешних приложений")
+    await cback.message.edit_text("Отлично! Теперь пришлите пароль для внешних приложений")
     await state.set_state(Form.password)
 
 
@@ -82,13 +79,13 @@ async def process_passwords(message: types.Message, state: FSMContext):
     await message.delete()
 
 
-@password.callback_query(Text(cb.back.value), Form.check_email)
-@password.callback_query(Text(cb.back.value), Form.check_password)
+@password.callback_query(Text(ba.back.value), Form.check_post)
+@password.callback_query(Text(ba.back.value), Form.check_password)
 async def process_data_entered_once_more(cback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
-    if current_state == Form.check_email:
+    if current_state == Form.check_post:
         await cback.message.edit_text("Пришлите почту еще раз!")
-        await state.set_state(Form.email)
+        await state.set_state(Form.post)
     current_state = await state.get_state()
     if current_state == Form.check_password:
         await cback.message.edit_text("Пришлите пароль еще раз!")
@@ -108,7 +105,7 @@ async def process_continue_connection_choice(message: types.Message, state: FSMC
             "Почта {email}\n"
             "Пароль <tg-spoiler>{password}</tg-spoiler>"
             "".format(**data),
-            reply_markup=confirm_reset_keyboard.as_markup()
+            reply_markup=confirm_reset_keyboard.as_markup(),
         )
         await state.set_state(Form.connect_to_server)
         await message.delete()
@@ -117,8 +114,7 @@ async def process_continue_connection_choice(message: types.Message, state: FSMC
         await message.delete()
 
 
-@password.callback_query(Text(cb.next.value), Form.connect_to_server)
-@state
+@password.callback_query(Text(ba.next.value), Form.connect_to_server)
 async def process_check_on_server(cback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     if current_state != Form.connect_to_server:
@@ -129,5 +125,6 @@ async def process_check_on_server(cback: types.CallbackQuery, state: FSMContext)
     await state.set_state(None)
     # TODO: идем в апишку, пытаемся привязать почту, стучимся на imap сервер
     await cback.message.edit_text("Подтверждено! Подключение производится...")
+
 
 # TODO: добавить отработку событий неуспешной привязки почты и так далее, затем закрыть состояние

@@ -1,24 +1,17 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
-class ProcessEConnection(StatesGroup):
+class ConnectionEForm(StatesGroup):
     provider = State()
     connection_type = State()
-    email = State()
-    check_email = State()
+    post = State()
+    check_post = State()
     password = State()
     check_password = State()
     connect_to_server = State()
 
 
-class ConnectionEForm(ProcessEConnection):
-    pass
-
-
-class ProcessEDisconnection(StatesGroup):
-    email = State()
-    disconnect_confirmation = State()
-
-
-class DisconnectionEForm(ProcessEDisconnection):
-    pass
+class ShowConnectedItems(StatesGroup):
+    show_choice = State()
+    content = State()
+    choose_item = State()  # выбрать элемент для отвязки
