@@ -8,7 +8,11 @@ from src.callbacks import BasicActions as ba
 from src.callbacks import Disconnect as dc
 from src.callbacks import ShowItems as si
 from src.handlers.user.data.mock import senders, user_response
-from src.keyboards import disconnect_keyboard, generate_enumeration_keyboard, show_keyboard
+from src.keyboards import (
+    disconnect_keyboard,
+    generate_enumeration_keyboard,
+    show_keyboard,
+)
 from src.states import ShowConnectedItems as Form
 from src.utils import get_current_state
 
@@ -69,7 +73,7 @@ async def process_disconnect_button(
                 "Для того чтобы просмотреть список привязанных отправителей нажмите "
                 "на кнопку Отправители, для того чтобы просмотреть список привязанных "
                 "почт нажмите на кнопку Почты",
-                reply_markup=show_keyboard.as_markup()
+                reply_markup=show_keyboard.as_markup(),
             )
             await state.set_state(Form.show_choice)
 
