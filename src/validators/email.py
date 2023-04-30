@@ -2,7 +2,7 @@ import re
 from abc import ABC, abstractmethod
 
 
-class BaseEmailValidation(ABC):
+class BaseCheckPost(ABC):
     # TODO: поменять название класса
     """Абстрактный класс для валидации пользовательских электронных адресов."""
 
@@ -29,7 +29,7 @@ class BaseEmailValidation(ABC):
         """
 
 
-class EmailValidation(BaseEmailValidation):
+class CheckPost(BaseCheckPost):
     # TODO: поменять название класса
     """Класс для валидации пользовательских электронных адресов."""
 

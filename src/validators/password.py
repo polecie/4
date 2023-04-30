@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class BasePasswordValidation(ABC):
+class BaseCheckPassword(ABC):
     # TODO: поменять название класса
     """Абстрактный класс для валидации пароля."""
 
@@ -16,7 +16,7 @@ class BasePasswordValidation(ABC):
         """
 
 
-class PasswordValidation(BasePasswordValidation):
+class CheckPasswords(BaseCheckPassword):
     # TODO: поменять название класса
     """Класс для валидации пароля."""
 

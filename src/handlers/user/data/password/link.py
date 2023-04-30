@@ -6,8 +6,8 @@ from src.callbacks import BasicActions as ba
 from src.callbacks import ConnectionType as ct
 from src.keyboards import confirm_reset_keyboard, continue_repeat_keyboard
 from src.states import ConnectionEForm as Form
-from src.validators.email import EmailValidation
-from src.validators.password import PasswordValidation
+from src.validators.email import CheckPost
+from src.validators.password import CheckPasswords
 
 __all__ = ("password",)
 
@@ -31,7 +31,7 @@ async def process_connection_via_password(cback: types.CallbackQuery, state: FSM
 async def process_entered_email(message: types.Message, state: FSMContext):
     email = message.text
     data = await state.get_data()
-    if EmailValidation.check_format(email) and EmailValidation.check_domain(email, data["provider"]):
+    if CheckPost.check_format(email) and CheckPost.check_domain(email, data["provider"]):
         await state.update_data(email=message.text)
         await message.answer(
             "Отлично! Теперь проверьте правильность введенной вами почты и нажмите <b>Продолжить</b>, "
@@ -41,14 +41,14 @@ async def process_entered_email(message: types.Message, state: FSMContext):
         )
         await state.set_state(Form.check_post)
         await message.delete()
-    if not EmailValidation.check_format(email):
+    if not CheckPost.check_format(email):
         await state.set_state(Form.post)
         await message.answer(
             f"Почта {message.text} "
             f"не соответствует формату электронного адреса, "
             f"попробуйте ввести данные еще раз"
         )
-    if not EmailValidation.check_domain(email, data["provider"]):
+    if not CheckPost.check_domain(email, data["provider"]):
         await state.set_state(Form.post)
         await message.answer(
             f"Почта {message.text} не содержит домена {data['provider']}, возможно вы ошиблись\n\n"
@@ -99,7 +99,7 @@ async def process_continue_connection_choice(message: types.Message, state: FSMC
         return
     data = await state.get_data()
     password = data.get("password")
-    if PasswordValidation.check_passwords(message.text, password):
+    if CheckPasswords.check_passwords(message.text, password):
         await message.answer(
             "Отлично! Подтверждаете привязку почтовых данных? \n\n"
             "Почта {email}\n"
