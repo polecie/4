@@ -1,10 +1,9 @@
 from aiogram import Router
 
-from .base import router
-from .user import user as us
+from .base import router as base_router
+from .user import user_router
 
-__all__ = ("main_router",)
+__all__ = ("router",)
 
-main_router = Router()
-
-main_router.include_routers(router, us)
+router = Router()
+router.include_routers(base_router, user_router)

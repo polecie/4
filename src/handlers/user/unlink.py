@@ -7,25 +7,23 @@ from aiogram.fsm.context import FSMContext
 from src.callbacks import BasicActions as ba
 from src.callbacks import Disconnect as dc
 from src.callbacks import ShowItems as si
-from src.handlers.user.data.mock import senders, user_response
+from src.handlers.user.mock import senders, user_response
 from src.keyboards import (
     disconnect_keyboard,
     generate_enumeration_keyboard,
     show_keyboard,
 )
 from src.states import ShowConnectedItems as Form
-from src.utils import get_current_state
 
-__all__ = ("disconnect_data",)
+__all__ = ("router",)
 
-disconnect_data = Router()
+router = Router()
 
 
-@disconnect_data.callback_query(
+@router.callback_query(
     Text(startswith=dc.prefix.value),
     Form.content,
 )
-@get_current_state
 async def process_item_chosen_button(
     cback: types.CallbackQuery,
     state: FSMContext,
@@ -39,11 +37,10 @@ async def process_item_chosen_button(
     await state.update_data(email=cback_data)
 
 
-@disconnect_data.callback_query(
+@router.callback_query(
     Text(ba.next.value),
     Form.choose_item,
 )
-@get_current_state
 async def process_disconnect_button(
     cback: types.CallbackQuery,
     state: FSMContext,
@@ -66,10 +63,10 @@ async def process_disconnect_button(
     if section == si.senders.value:
         if len(senders) == 0:  # TODO: заменить на полученные имаилз из апишки
             await asyncio.sleep(0.5)
+            await cback.message.delete()
             await cback.answer(show_alert=True, text=f"Ваша почта {email} успешно отвязана!")
             await cback.message.answer("Вы отвязали все подключенные отправители!")
-            await asyncio.sleep(0.5)
-            await cback.message.edit_text(
+            await cback.message.answer(
                 "Для того чтобы просмотреть список привязанных отправителей нажмите "
                 "на кнопку Отправители, для того чтобы просмотреть список привязанных "
                 "почт нажмите на кнопку Почты",
@@ -78,29 +75,26 @@ async def process_disconnect_button(
             await state.set_state(Form.show_choice)
 
     if section == si.posts.value:
-        if len(user_response) == 0:  # TODO: заменить на полученные имаилз из апишки
-            await asyncio.sleep(0.5)
-            await cback.answer(show_alert=True, text=f"Ваша почта {email} успешно отвязана!")
-            await cback.message.answer("Вы отвязали все подключенные почты!")
-            await state.set_state(None)
-            await cback.message.delete()
-
-        if len(user_response) > 0:  # TODO: заменить на полученные имаилз из апишки
-            await cback.answer(show_alert=True, text=f"Ваша почта {email} успешно отвязана!")
+        count = len(user_response)  # TODO: заменить на полученные имаилз из апишки
+        await cback.answer(show_alert=True, text=f"Ваша почта {email} успешно отвязана!")
+        if count > 0:
             await cback.message.edit_text(
                 "Для того чтобы отвязать {message} в списке ниже\n\n"
                 "Если вы хотите вернуться в меню выбора, нажмите на кнопку /back\n".format(message=message),
                 reply_markup=keyboard.as_markup(),
             )
             await state.update_data(email=None)
-            await state.set_state(Form.content)
+        if count == 0:
+            await asyncio.sleep(0.5)
+            await cback.message.answer("Вы отвязали все подключенные почты!")
+            await cback.message.delete()
+        await state.set_state(None if count == 0 else Form.content)
 
 
-@disconnect_data.callback_query(
+@router.callback_query(
     Text(ba.back.value),
     Form.choose_item,
 )
-@get_current_state
 async def process_back_to_choice_options_button(
     cback: types.CallbackQuery,
     state: FSMContext,
@@ -114,7 +108,7 @@ async def process_back_to_choice_options_button(
         message = "какую-либо из ваших почт, выберите ее"
     if section == si.senders.value:
         response_body = senders
-        message = "какой-либо из ваших отправителей, выберите его"
+        message = "кого-либо из ваших отправителей, выберите его"
 
     keyboard = await generate_enumeration_keyboard(items=response_body, page=page)
 

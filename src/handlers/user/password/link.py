@@ -9,12 +9,12 @@ from src.states import ConnectionEForm as Form
 from src.validators.email import CheckPost
 from src.validators.password import CheckPasswords
 
-__all__ = ("password",)
+__all__ = ("router",)
 
-password = Router()  # роутер для обработки входа через пароль
+router = Router()  # роутер для обработки входа через пароль
 
 
-@password.callback_query(Text(ct.password.value), Form.connection_type)
+@router.callback_query(Text(ct.password.value), Form.connection_type)
 async def process_connection_via_password(cback: types.CallbackQuery, state: FSMContext):
     await state.update_data(connection_type=cback.data)
     await cback.message.edit_text(
@@ -27,7 +27,7 @@ async def process_connection_via_password(cback: types.CallbackQuery, state: FSM
 
 
 # TODO: добавить валидацию почты
-@password.message(Form.post)
+@router.message(Form.post)
 async def process_entered_email(message: types.Message, state: FSMContext):
     email = message.text
     data = await state.get_data()
@@ -58,7 +58,7 @@ async def process_entered_email(message: types.Message, state: FSMContext):
         )
 
 
-@password.callback_query(Text(ba.next.value), Form.check_post)
+@router.callback_query(Text(ba.next.value), Form.check_post)
 async def process_entered_password(cback: types.CallbackQuery, state: FSMContext):
     await cback.message.edit_text("Отлично! Теперь пришлите пароль для внешних приложений")
     await state.set_state(Form.password)
@@ -66,7 +66,7 @@ async def process_entered_password(cback: types.CallbackQuery, state: FSMContext
 
 # TODO: валидация пароля на отсутствие стикеров,
 #  файлов, смайликов, картинок и тд в сообщении
-@password.message(Form.password)
+@router.message(Form.password)
 async def process_passwords(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state != Form.password:
@@ -79,8 +79,8 @@ async def process_passwords(message: types.Message, state: FSMContext):
     await message.delete()
 
 
-@password.callback_query(Text(ba.back.value), Form.check_post)
-@password.callback_query(Text(ba.back.value), Form.check_password)
+@router.callback_query(Text(ba.back.value), Form.check_post)
+@router.callback_query(Text(ba.back.value), Form.check_password)
 async def process_data_entered_once_more(cback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     if current_state == Form.check_post:
@@ -92,7 +92,7 @@ async def process_data_entered_once_more(cback: types.CallbackQuery, state: FSMC
         await state.set_state(Form.password)
 
 
-@password.message(Form.check_password)
+@router.message(Form.check_password)
 async def process_continue_connection_choice(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state != Form.check_password:
@@ -114,7 +114,7 @@ async def process_continue_connection_choice(message: types.Message, state: FSMC
         await message.delete()
 
 
-@password.callback_query(Text(ba.next.value), Form.connect_to_server)
+@router.callback_query(Text(ba.next.value), Form.connect_to_server)
 async def process_check_on_server(cback: types.CallbackQuery, state: FSMContext):
     current_state = await state.get_state()
     if current_state != Form.connect_to_server:

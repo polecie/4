@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from src.core import settings
-from src.handlers import main_router
+from src.handlers import router
 
 
 async def main():
@@ -13,12 +13,11 @@ async def main():
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
 
-    dp.include_router(main_router)
+    dp.include_router(router)
 
     try:
         await dp.start_polling(
             bot,
-            # allowed_updates=["message", "callback_query", "chat_member"]
             allowed_updates=dp.resolve_used_update_types(),
         )
     finally:

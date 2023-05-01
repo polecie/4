@@ -5,18 +5,16 @@ from aiogram.fsm.context import FSMContext
 from src.callbacks import Pagination as pg
 from src.callbacks import ShowItems as si
 from src.filters.user import CheckPosts
-from src.handlers.user.data.mock import senders, user_response
+from src.handlers.user.mock import senders, user_response
 from src.keyboards import generate_enumeration_keyboard, show_keyboard
 from src.states import ShowConnectedItems as Form
 
-__all__ = ("enum_data",)
+__all__ = ("router",)
 
-enum_data = Router()
-
-# TODO: получаем список привязанных почт пользователя из апишки в формате json с пагинацией
+router = Router()
 
 
-@enum_data.message(Command("show"), CheckPosts(user_response))
+@router.message(Command("show"), CheckPosts(user_response))
 async def process_show_command(
     message: types.Message,
     state: FSMContext,
@@ -40,7 +38,7 @@ async def process_show_command(
         )
 
 
-@enum_data.callback_query(
+@router.callback_query(
     Text(si.posts.value),
     Form.show_choice,
 )
@@ -60,7 +58,7 @@ async def process_show_button(
         await state.set_state(Form.content)
 
 
-@enum_data.callback_query(
+@router.callback_query(
     Text(startswith=pg.next_page.value),
     Form.content,
 )
@@ -91,7 +89,7 @@ async def process_next_button(
     )
 
 
-@enum_data.callback_query(
+@router.callback_query(
     Text(startswith=pg.prev_page.value),
     Form.content,
 )
@@ -122,7 +120,7 @@ async def process_prev_button(
     )
 
 
-@enum_data.message(Command("back"), Form.content)
+@router.message(Command("back"), Form.content)
 async def process_back_command(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
@@ -138,7 +136,7 @@ async def process_back_command(message: types.Message, state: FSMContext):
         await state.update_data(section=None)
 
 
-@enum_data.callback_query(
+@router.callback_query(
     Text(si.senders.value),
     Form.show_choice,
 )

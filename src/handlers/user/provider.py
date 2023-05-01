@@ -7,12 +7,12 @@ from src.callbacks import Providers as ps
 from src.keyboards import base_keyboard, connection_type_keyboard, providers_keyboard
 from src.states import ConnectionEForm as Form
 
-__all__ = ("provider",)
+__all__ = ("router",)
 
-provider = Router()
+router = Router()
 
 
-@provider.message(Command("connect"))
+@router.message(Command("connect"))
 async def process_connect_command(message: types.Message, state: FSMContext):
     """Обработчик команды `/connect`. Обрабатывает событие привязки почтового
     ящика, запускает состояние привязки почты.
@@ -36,7 +36,7 @@ async def process_connect_command(message: types.Message, state: FSMContext):
     await state.set_state(Form.provider)
 
 
-@provider.callback_query(Text(ba.next.value), Form.provider)
+@router.callback_query(Text(ba.next.value), Form.provider)
 async def process_connection_continued(cback: types.CallbackQuery):
     """Обработчик нажатия на кнопку `next` в состоянии подтверждения привязки
     данных.
@@ -53,7 +53,7 @@ async def process_connection_continued(cback: types.CallbackQuery):
     )
 
 
-@provider.callback_query(Text(ba.back.value), Form.provider)
+@router.callback_query(Text(ba.back.value), Form.provider)
 async def process_connection_stepped_back(cback: types.CallbackQuery, state: FSMContext):
     """Обработчик нажатия на кнопку `back` из состояния подтверждения привязки
     данных. Возвращает пользователя в главное меню.
@@ -71,10 +71,10 @@ async def process_connection_stepped_back(cback: types.CallbackQuery, state: FSM
     await state.set_state(Form.provider)
 
 
-@provider.callback_query(Text(ps.yandex.value), Form.provider)
-@provider.callback_query(Text(ps.gmail.value), Form.provider)
-@provider.callback_query(Text(ps.mail.value), Form.provider)
-@provider.callback_query(Text(ps.outlook.value), Form.provider)
+@router.callback_query(Text(ps.yandex.value), Form.provider)
+@router.callback_query(Text(ps.gmail.value), Form.provider)
+@router.callback_query(Text(ps.mail.value), Form.provider)
+@router.callback_query(Text(ps.outlook.value), Form.provider)
 async def process_provider(cback: types.CallbackQuery, state: FSMContext):
     """Обработчик выбора почтового провайдера для привязки почты. Обрабатывает
     для всех провайдеров в списке клавиатуры `providers_keyboard`.
@@ -93,7 +93,7 @@ async def process_provider(cback: types.CallbackQuery, state: FSMContext):
     await state.set_state(Form.connection_type)
 
 
-@provider.callback_query(Text(ba.back.value), Form.connection_type)
+@router.callback_query(Text(ba.back.value), Form.connection_type)
 async def process_provider_stepped_back(cback: types.CallbackQuery, state: FSMContext):
     """Обработчик нажатия на кнопку `back` в состоянии выбора провайдера.
     Возвращает пользователя в состояние выбора провайдера.
