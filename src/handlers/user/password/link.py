@@ -8,6 +8,7 @@ from src.keyboards import confirm_reset_keyboard, continue_repeat_keyboard
 from src.states import ConnectionEForm as Form
 from src.validators.email import CheckPost
 from src.validators.password import CheckPasswords
+from src.services.senders import SenderApiGateway, get_sender_gateway
 
 __all__ = ("router",)
 
@@ -119,11 +120,17 @@ async def process_check_on_server(cback: types.CallbackQuery, state: FSMContext)
     current_state = await state.get_state()
     if current_state != Form.connect_to_server:
         return
+
+    # data = await state.get_data()
+    # sender_gateway: SenderApiGateway = await get_sender_gateway()
+    # await sender_gateway.create(cback.message.from_user.id, )
+
     # TODO: подключение к почтам через imap и проверка их на сервере
     # TODO: отсюда до очистики стейта передаем данные на запись в бд
     await state.clear()  # очистить стейт после пинга почты на сервере
     await state.set_state(None)
     # TODO: идем в апишку, пытаемся привязать почту, стучимся на imap сервер
+
     await cback.message.edit_text("Подтверждено! Подключение производится...")
 
 
